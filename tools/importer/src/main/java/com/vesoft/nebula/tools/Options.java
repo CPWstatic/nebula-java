@@ -103,14 +103,20 @@ public class Options {
             columns = "";
         }
 
-        if (Files.exists(errorPath)) {
-            String errMsg = String.format("%s have existed", errorPath);
-            throw new Exception(errMsg);
-        }
+        checkErrorFile(errorPath, 0);
 
         if (Files.isDirectory(errorPath)) {
             String errMsg = String.format("%s is a directory", errorPath);
             throw new Exception(errMsg);
+        }
+    }
+
+    private void checkErrorFile(Path errorPath, int cnt) throws Exception {
+        if (cnt > 10) {
+            throw new Exception("Too much error files exist.");
+        }
+        if (Files.exists(errorPath)) {
+            checkErrorFile(Paths.get(errorPath.toFile().getName() + cnt), cnt++);
         }
     }
 

@@ -19,13 +19,15 @@ public class ReaderFactory {
     public static Reader get(ReaderType type, Options options) throws Exception {
         Reader reader;
         switch (type) {
-            case CSV:
-                reader = new CsvReader(options.getFile(), options.getBatchSize());
-                reader.init();
-                return reader;
-
-            default:
-                throw new Exception(String.format("No such reader: %s", type));
+          case CSV:
+            reader = new CsvReader(options.getFile(), options.getBatchSize());
+            break;
+          default:
+            throw new Exception(String.format("No such reader: %s", type));
         }
+
+        reader.init();
+        return reader;
+
     }
 }

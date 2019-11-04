@@ -94,11 +94,4 @@ public class ImporterTest {
         List<Long> result = (ArrayList<Long>) obj;
         Assert.assertTrue(result.size() > 0);
     }
-
-    @Test
-    public void testReadContent() throws Exception {
-        Method readContent = Importer.class.getDeclaredMethod("readContent", String.class);
-        readContent.setAccessible(true);
-        readContent.invoke(Importer.getInstance(), "./src/test/Resources/geo.csv");
-    }
 }

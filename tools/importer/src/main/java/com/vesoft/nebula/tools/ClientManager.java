@@ -28,7 +28,7 @@ public class ClientManager {
                 throw new GetClientFailException("Connect fail.");
             }
             if (client.execute(String.format(Constant.USE_TEMPLATE, options.spaceName)) != 0) {
-                throw new GetClientFailException("Switch space fail.");
+                throw new GetClientFailException(String.format("Switch to space(%s) fail.", options.spaceName));
             }
             LOGGER.info(Thread.currentThread().getName()
                     + ": switch to space " + options.spaceName);

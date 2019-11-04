@@ -14,9 +14,11 @@ import com.google.common.net.HostAndPort;
 
 import com.vesoft.nebula.graph.client.GraphClient;
 
-import java.io.*;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.nio.file.Files;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.ExecutorCompletionService;
@@ -27,6 +29,7 @@ import com.vesoft.nebula.tools.reader.Reader;
 import com.vesoft.nebula.tools.reader.ReaderFactory;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
+import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
@@ -101,6 +104,8 @@ public class Importer {
                 LOGGER.info(String.format("Total task    : %d, Failed : %d", taskCnt, failedTaskCnt));
             }
 
+        } catch (Exception e) {
+            LOGGER.error(e);
         } finally {
             executor.shutdown();
 
@@ -170,9 +175,9 @@ public class Importer {
         }
 
         @Override
-        public Integer call() {
+        public Integer call() throws Exception {
             final long startTime = System.currentTimeMillis();
-            Integer retCode = 0;
+            Integer retCode = -1;
             try {
                 GraphClient client = ClientManager.getClient(hostAndPorts, options);
                 List<String> values = new ArrayList<>(records.size());
@@ -213,16 +218,14 @@ public class Importer {
                     synchronized (csvPrinter) {
                         csvPrinter.printRecords(records);
                     }
-                    LOGGER.info(String.format("Insert batch failed: %d, cost %d ms",
-                            records.size(), System.currentTimeMillis() - startTime));
+                    LOGGER.info(String.format("Insert batch failed, ret code: %d, cost %d ms",
+                            retCode, System.currentTimeMillis() - startTime));
                 }
-            } catch (ClientManager.GetClientFailException e) {
-                throw new RuntimeException(e.getMessage());
-            } catch (IOException e) {
-                LOGGER.error("IOException: ", e);
-            } finally {
-                return retCode;
+            } catch (ClientManager.GetClientFailException | IOException e) {
+                throw new Exception(e.getMessage());
             }
+
+            return retCode;
         }
     }
 
